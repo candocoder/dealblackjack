@@ -17,6 +17,7 @@ namespace BlackjackPayouts
         {
             Start,
             Quiz
+
         }
 
         static int MAX_QUESTION = 10;
@@ -244,7 +245,21 @@ namespace BlackjackPayouts
 
             }
 
-            if (item != null && item.Bet >= 10 && item.Bet <= 1000)
+            if (item == null)
+            {
+                try
+                {
+                    // They used the payout intent but were not in quiz mode.
+                    bet = decimal.Parse(intentRequest.Intent.Slots["Payout"].Value);
+                    item = new Item(bet + (half ? .5m : 0), quizratio);
+                }
+                catch
+                {
+
+                }
+            }
+        
+            if (item != null && item.Bet >= .5m && item.Bet <= 1000)
             {
                 StandardCard card = new StandardCard();
 
@@ -262,7 +277,7 @@ namespace BlackjackPayouts
             }
             else
             {
-                output.Ssml = "Skinny would prefer you enter a valid bet from 10 to 1000.";
+                output.Ssml = "Please say a valid bet from .5 to 1000 dollars.";
                 response.SessionAttributes.Add(RESPONSE, output.Ssml);
                 response.Response.Reprompt = new Reprompt();
                 response.Response.Reprompt.OutputSpeech = innerResponse;
@@ -282,7 +297,7 @@ namespace BlackjackPayouts
             }
             catch
             {
-                DoQuiz(input, innerResponse);
+                AnswerFacts(input, innerResponse, half);
                 return;
             }
 
@@ -348,7 +363,7 @@ namespace BlackjackPayouts
             counter++;
             response.SessionAttributes.Add(COUNTER, counter);
 
-            decimal bet = GetRandomNumber(2, 20) * 5m;
+            decimal bet = Item.Tests[GetRandomNumber(0, Item.Tests.Length - 1)];
 
             response.SessionAttributes.Add(QUIZBET, bet.ToString());
             response.SessionAttributes.Add(QUIZSCORE, quizscore);
@@ -469,7 +484,12 @@ namespace BlackjackPayouts
 
         private int GetRandomNumber(int min, int max)
         {
-            return (int)Math.Floor((decimal)(rand.NextDouble() * (double)(max - min)) + min);
+            var rval = (int)Math.Floor((decimal)(rand.NextDouble() * (double)(max - min))) + min;
+
+            if (rval < min) rval = min;
+            if (rval > max) rval = max;
+
+            return rval;
         }
 
         private string GetTextDescription(Item item)
