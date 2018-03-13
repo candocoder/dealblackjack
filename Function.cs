@@ -38,7 +38,7 @@ namespace BlackjackPayouts
         const string PAYOUT = "Payout";
 
         const string WELCOME_MESSAGE = "Welcome to the blackjack payouts quiz.  You can ask me the blackjack payout for any bet by saying \"bet\" and the amount, or you can ask me to start a quiz.  What would you like to do?";
-        const string EXIT_SKILL_MESSAGE = "Have a good day, play again soon!";
+        const string EXIT_SKILL_MESSAGE = "Have a good day!";
         const string REPROMPT_SPEECH = "Which other bet would you like to know a payout for?";
         const string HELP_MESSAGE = "I know a lot of Blackjack payouts.  You can say, bet 10, and I will tell you the payout.  You can also test your knowledge by asking me to start a quiz.  What would you like to do?";
 
@@ -151,7 +151,8 @@ namespace BlackjackPayouts
                     break;
 
                 case "Quiz":
-                    DoQuiz(input, innerResponse = new SsmlOutputSpeech());
+                    appstate = GetAppState(input);
+                    AnswerFacts(input, innerResponse = new SsmlOutputSpeech());
                     break;
              
                 case "AskQuestion":
@@ -233,32 +234,29 @@ namespace BlackjackPayouts
             string textout = string.Empty;
             var intentRequest = input.Request;
 
+            decimal payout = 0;
             decimal bet = 0;
             Item item = null;
+
             try
             {
-                bet = decimal.Parse(intentRequest.Intent.Slots["Bet"].Value);
-                item = new Item(bet + (half ? .5m : 0), quizratio);
+                // They used the payout intent but were not in quiz mode.
+                payout = decimal.Parse(intentRequest.Intent.Slots["Payout"].Value);
             }
             catch
             {
-
             }
 
-            if (item == null)
+            try
             {
-                try
-                {
-                    // They used the payout intent but were not in quiz mode.
-                    bet = decimal.Parse(intentRequest.Intent.Slots["Payout"].Value);
-                    item = new Item(bet + (half ? .5m : 0), quizratio);
-                }
-                catch
-                {
-
-                }
+                bet = decimal.Parse(intentRequest.Intent.Slots["Bet"].Value);
             }
-        
+            catch
+            {
+            }
+
+            item = new Item((bet > 0 ? bet : payout) + (half ? .5m : 0), quizratio);
+
             if (item != null && item.Bet >= .5m && item.Bet <= 1000)
             {
                 StandardCard card = new StandardCard();
