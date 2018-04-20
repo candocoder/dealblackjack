@@ -1,2 +1,2 @@
-# blackjackpayouts
+# blackjackdealerpractice
 Alexa App
