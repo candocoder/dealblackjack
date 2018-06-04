@@ -1,36 +1,387 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace BlackjackPayouts
+namespace Black
 {
-    public class Item
+    public class Random
     {
-        public static decimal[] Tests = { 5, 95, 875, 37, 650, 8, 425, 15, 47, 29, 60, 19, 250, 13, 100, 38, 75, 1000, 23, 525, 42, 600, 30, 150, 6, 300, 34, 78, 67, 21, 88, 900, 500,
-                                          41, 90, 66, 7, 700, 66, 18, 825, 125, 35, 44, 14, 48, 31, 39, 850, 45, 450, 85, 9, 350, 16, 40, 28, 65, 22, 225, 32, 725, 46, 925, 4, 24,
-                                           9, 325, 550, 400, 10, 55, 800, 26, 275, 625, 20, 43, 33, 1, 70, 37.5m, 25, 17, 950, 49, 80, 11, 750, 92, 36, 111, 87, 3, 200, 50, 27, 375, 12 };
+        private static System.Random rand;
 
-        const string BET = "Bet";
-        const string PAYOUT = "Payout";
-
-        public decimal Bet { get; set; }
-        public decimal Payout { get; set; }
-
-        public Item( decimal _bet, decimal _ratio )
+        private Random()
         {
-            Bet = _bet;
-            
-            // Convert to 50 cent pieces and back.
-            // This rounds down to the nearest 50 cents
-            // (quarters aren't used)
-
-            Payout = (int)(_bet * 2 * _ratio) / 2m;
+            rand = new System.Random();
         }
 
-        public static string GetFormatedText (Item item)
+        public static int GetRandomNumber(int min, int max)
         {
-            string text = BET +": " + item.Bet.ToString() + "\n";
-            text += PAYOUT + ": " +  item.Payout.ToString() + "\n";
+            var rval = (int)Math.Floor((decimal)(rand.NextDouble() * (double)(max - min))) + min;
 
-            return text;
+            if (rval < min) rval = min;
+            if (rval > max) rval = max;
+
+            return rval;
+        }
+    }
+
+    public class Cheques
+    {
+        int fifties;
+
+        public Cheques(Decimal dollars)
+        {
+            Dollars = dollars;
+        }
+
+        public int Fifties
+        {
+            get { return fifties; }
+        }
+
+        public void AddFifties(int number)
+        {
+            fifties += number;
+        }
+
+        public void AddWhites(int number)
+        {
+            fifties += number * 2;
+        }
+
+        public void AddReds(int number)
+        {
+            fifties += number * 5 * 2;
+        }
+       
+        public void AddGreens(int number)
+        {
+            fifties += number * 25 * 2;
+        }
+
+        public void AddBlacks(int number)
+        {
+            fifties += number * 100 * 2;
+        }
+
+        public void AddPurples(int number)
+        {
+            fifties += number * 500 * 2;
+        }
+
+        Decimal Dollars
+        {
+            get
+            {
+                return Fifties / 2m;
+            }
+            set
+            {
+                fifties = (int)(value * 2);
+            }
+        }
+    }
+
+    public class Payout
+    {
+        int BetAmount;
+        int PayoutAmount;
+
+        public override String ToString()
+        {
+            return PayoutAmount + " to " + BetAmount;
+        }
+
+        public Payout(int bet, int payout)
+        {
+            BetAmount = bet;
+            PayoutAmount = payout;
+        }
+
+        public Cheques Pay(Cheques bet)
+        {
+            return new Cheques(((bet.Fifties * PayoutAmount) / BetAmount) / 2m);
+        }
+    }
+
+    public class BlackJack
+    {
+        const int Ace = 1;
+        const int Face = 10;
+        const int NumbersInGame = 10;
+        const int SuitsInDeck = 4;
+        const int AcesInDeck = SuitsInDeck;
+        const int CardsInDeck = 52;
+        const int FacesInSuit = 4;
+
+        public enum Suits : short
+        {
+            Spades = 1,
+            Hearts = 2,
+            Diamonds = 3,
+            Clubs = 4
+        }
+
+        public enum MaximumBetInDollars : short
+        {
+            FiveHundred = 500,
+            OneThousand = 1000
+        }
+
+        public enum MinimumBetInDollars : byte
+        {
+            Five = 5,
+            Ten = 10,
+            TwentyFive = 25,
+            OneHundred = 100
+        }
+
+        public enum NumberOfDecks : byte
+        {
+            One = 1,
+            Two = 2,
+            Six = 6
+        }
+
+        public enum Payout : int
+        {
+            ThreeToTwo = 3,
+            SixToFive = 6
+        }
+
+        NumberOfDecks numberOfDecksInGame;
+        MaximumBetInDollars maximumBetInDollarsInGame;
+        MinimumBetInDollars minimumBetInDollarsInGame;
+
+        public override String ToString()
+        {
+            if(NumberOfDecksInGame == NumberOfDecks.One)
+            {
+                return "Single Deck";
+            }
+            else if (NumberOfDecksInGame == NumberOfDecks.Two)
+            {
+                return "Double Deck";
+            }
+            if (NumberOfDecksInGame == NumberOfDecks.Six)
+            {
+                return "Six Deck";
+            }
+
+            return "Not Sure";
+        }
+
+        NumberOfDecks NumberOfDecksInGame
+        {
+            get
+            {
+                return numberOfDecksInGame;
+            }
+        }
+
+        MaximumBetInDollars MaximumBetInDollarsInGame
+        {
+            get
+            {
+                return MaximumBetInDollarsInGame;
+            }
+        }
+
+        MinimumBetInDollars MinimumBetInDollarsInGame
+        {
+            get
+            {
+                return  minimumBetInDollarsInGame;
+            }
+        }
+
+        private int[] numbersUsed;
+
+
+        public Decimal RandomBet
+        {
+            get
+            {
+                int GetRandomNumberofFiftyCentPieces = Random.GetRandomNumber((int)MinimumBetInDollarsInGame * 2, (int)MaximumBetInDollarsInGame * 2);
+                return GetRandomNumberofFiftyCentPieces / 0.5m;
+            }
+        }
+
+        private int MaxAces
+        {
+            get
+            {
+                return (int)NumberOfDecksInGame * (int)Suits.Total;
+            }
+        }
+
+        private int MaxFaces
+        {
+            get
+            {
+                return (int)this.NumberOfDecksInGame * (int)Suits.Total * FacesInSuit;
+            }
+        }
+
+        private int CardsLeft
+        {
+            get
+            {
+                return ((int)NumberOfDecksInGame * CardsInDeck) - CardsUsed;
+            }
+        }
+
+        private int CardsUsed
+        {
+            get
+            {
+                int Total = 0;
+                foreach (int Used in numbersUsed)
+                {
+                    Total += Used;
+                }
+
+                return Total;
+            }
+        }
+
+        public int DealCard()
+        {
+            int Card = 0;
+            int Total = 0;
+            int NextCard = Random.GetRandomNumber(1, CardsUsed);
+
+            for (int Number = 1; Number <= NumbersInGame; Number++)
+            {
+                int Max = MaxAces;
+
+                if (Number == Face)
+                {
+                    Max = MaxFaces;
+                }
+
+                int CardsLeftOfNumber = Max - numbersUsed[Number - 1];
+
+                Total += CardsLeftOfNumber;
+
+                if (NextCard < Total)
+                {
+                    numbersUsed[Number - 1] += 1;
+                    Card = Number;
+                    break;
+                }
+            }
+
+            return Card;
+        }
+
+        public Payout PayoutForGame;
+
+        public BlackJack(NumberOfDecks numberOfDecks, MinimumBetInDollars? minimumBetInDollars = null)
+        {
+            numberOfDecksInGame = numberOfDecks;
+
+            if (numberOfDecks == NumberOfDecks.One)
+            {
+                PayoutForGame = Payout.SixToFive;
+            }
+            else
+            {
+                PayoutForGame = Payout.ThreeToTwo;
+            }
+
+            if (minimumBetInDollars == null)
+            {
+                if (numberOfDecksInGame == NumberOfDecks.One)
+                {
+                    minimumBetInDollarsInGame = MinimumBetInDollars.Five;
+                }
+                else if (numberOfDecksInGame == NumberOfDecks.Two)
+                {
+                    maximumBetInDollarsInGame = MaximumBetInDollars.OneThousand;
+                }
+                else if (numberOfDecksInGame == NumberOfDecks.Six)
+                {
+                    minimumBetInDollarsInGame = MinimumBetInDollars.Ten;
+                }
+            }
+            else
+            {
+                minimumBetInDollarsInGame = minimumBetInDollars.Value;
+            }
+
+            if (minimumBetInDollarsInGame == MinimumBetInDollars.Five)
+            {
+                maximumBetInDollarsInGame = MaximumBetInDollars.FiveHundred;
+            }
+            else 
+            {
+                maximumBetInDollarsInGame = MaximumBetInDollars.OneThousand;
+            }
+        }
+    }
+
+    public class Table
+    {
+        BlackJack GameAtTable;
+        int Number;
+
+        public Table(int number, BlackJack game)
+        {
+            Number = number;
+            GameAtTable = game;    
+        }
+    }
+
+    public class Pit
+    {
+        public enum PitNumber : byte
+        {
+            One = 1,
+            Two = 2,
+            Three = 3
+        }
+
+        public Table[] Tables;
+
+        public Pit(PitNumber Number)
+        {
+        }
+    }
+
+    public class Pits
+    {
+        private Pit[] pits;
+
+        public Pits()
+        {
+            pits = new Pit[3];
+            pits[(int)Pit.PitNumber.One] = new Pit(Pit.PitNumber.One);
+            pits[(int)Pit.PitNumber.Two] = new Pit(Pit.PitNumber.Two);
+            pits[(int)Pit.PitNumber.Three] = new Pit(Pit.PitNumber.Three);
+        }
+
+        public Pit this[Pit.PitNumber pitNumber]
+        {
+            get
+            {
+                return pits[(int)pitNumber];
+            }
+        }
+
+    }
+    public class Floor
+    {
+        Pits PitsOnFloor;
+
+        public Floor()
+        {
+            PitsOnFloor = new Pits();
+
+            PitsOnFloor[Pit.PitNumber.One].Tables = new Table[12];
+
+            PitsOnFloor[Pit.PitNumber.One].Tables[0] = new Table(112, new Game(Game.NumberOfDecks.One));
+            PitsOnFloor[Pit.PitNumber.One].Tables[1] = new Table(14, new Game(Game.NumberOfDecks.Six));
+            PitsOnFloor[Pit.PitNumber.One].Tables[2] = new Table(17, new Game(Game.NumberOfDecks.Six));
+
         }
     }
 }

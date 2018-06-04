@@ -9,18 +9,16 @@ using AlexaAPI;
 
 [assembly: LambdaSerializerAttribute(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
-namespace BlackjackPayouts
+namespace BlackjackBuddy
 {
     public class Function
     {
+
         private enum AppState
         {
             Start,
-            Quiz
-
+            Playing
         }
-
-        static int MAX_QUESTION = 10;
 
         AppState appstate = AppState.Start;
 
@@ -59,6 +57,11 @@ namespace BlackjackPayouts
         public SkillResponse FunctionHandler(SkillRequest input, ILambdaContext ctx)
         {
             context = ctx;
+
+
+
+
+
             try
             {
                 response = new SkillResponse();
@@ -480,15 +483,6 @@ namespace BlackjackPayouts
            return false;
         }
 
-        private int GetRandomNumber(int min, int max)
-        {
-            var rval = (int)Math.Floor((decimal)(rand.NextDouble() * (double)(max - min))) + min;
-
-            if (rval < min) rval = min;
-            if (rval > max) rval = max;
-
-            return rval;
-        }
 
         private string GetTextDescription(Item item)
         {
