@@ -3,6 +3,95 @@ using System.Collections.Generic;
 
 namespace Black
 {
+    public class Deal
+    {
+        public ScanTheLayout()
+        {
+            CheckForBet("Spot 6");
+            CheckForBet("Spot 5");
+            CheckForBet("Spot 4");
+            CheckForBet("Spot 3");
+            CheckForBet("Spot 2");
+            CheckForBet("Spot 1");
+        }
+
+        public DealSpot3()
+        {
+            PullCardFromShoe()
+            DropCardWithLeftHand();
+        }
+
+        public DealSpot2()
+        {
+            PullCardFromShoe()
+            DropCardWithLeftHand();
+        }
+
+        public DealSpot2()
+        {
+            PullCardFromShoe()
+            DropCardWithLeftHand();
+        }
+
+        public DealFirstBase()
+        {
+            PullCardFromShoe()
+            DropCardWithLeftHand();
+        }
+
+        public DealFirstCard()
+        {
+            if (CheckForBet("Spot 1")  == true)
+            {
+                DealFirstBase();
+            }          
+            CheckForBet("Spot 5");
+            CheckForBet("Spot 4");
+            CheckForBet("Spot 3");
+            CheckForBet("Spot 2");
+        }
+
+        public DealAHand()
+        {
+            if (TableOpen == false)
+            {
+                OpenTable();
+            }
+            if (YellowCardOut == true)
+            {
+                ShuffleCards();
+            }
+
+            ScanTheLayout()
+            if()
+        }
+        public CountByFours()
+        {
+            Sac
+        }
+
+        public OpenTheTable()
+        {
+        }
+
+        public CloseTheTable()
+        {
+        }
+
+        public ScanTheLayout()
+        {
+        }
+
+        public CheckTheTen()
+        {
+        }
+
+        public OfferInsurance()
+        {
+        }
+    }
+
+
     public class Random
     {
         private static System.Random rand;
@@ -51,7 +140,7 @@ namespace Black
         {
             fifties += number * 5 * 2;
         }
-       
+
         public void AddGreens(int number)
         {
             fifties += number * 25 * 2;
@@ -153,7 +242,7 @@ namespace Black
 
         public override String ToString()
         {
-            if(NumberOfDecksInGame == NumberOfDecks.One)
+            if (NumberOfDecksInGame == NumberOfDecks.One)
             {
                 return "Single Deck";
             }
@@ -189,7 +278,7 @@ namespace Black
         {
             get
             {
-                return  minimumBetInDollarsInGame;
+                return minimumBetInDollarsInGame;
             }
         }
 
@@ -312,7 +401,7 @@ namespace Black
             {
                 maximumBetInDollarsInGame = MaximumBetInDollars.FiveHundred;
             }
-            else 
+            else
             {
                 maximumBetInDollarsInGame = MaximumBetInDollars.OneThousand;
             }
@@ -327,7 +416,7 @@ namespace Black
         public Table(int number, BlackJack game)
         {
             Number = number;
-            GameAtTable = game;    
+            GameAtTable = game;
         }
     }
 
@@ -383,5 +472,15 @@ namespace Black
             PitsOnFloor[Pit.PitNumber.One].Tables[2] = new Table(17, new Game(Game.NumberOfDecks.Six));
 
         }
+    }
+
+    public Hand
+    {
+    }
+
+    public WordsAtTheTable
+    {
+        Jokes
+        Jokes
     }
 }
